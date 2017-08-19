@@ -105,6 +105,22 @@ runcmd(struct cmd *cmd)
     /* MARK START task3
      * TAREFA3: Implemente codigo abaixo para executar
      * comando com redirecionamento. */
+    fprintf(stderr, "%d era o fd\n", rcmd->fd);
+    if((rcmd->fd = open(rcmd->file, O_RDONLY, 0)) == -1) {
+      fprintf(stderr, "Nao foi possivel acessar o arquivo %s para leitura\n", rcmd->file);
+      exit(1);
+    }
+    if(dup2(rcmd->fd, STDIN_FILENO) == -1) {
+      fprintf(stderr, "Erro no dup2\n");
+    }
+    close(rcmd->fd);
+    /* MARK END task3 */
+    runcmd(rcmd->cmd);
+    break;
+    rcmd = (struct redircmd*)cmd;
+    /* MARK START task3
+     * TAREFA3: Implemente codigo abaixo para executar
+     * comando com redirecionamento. */
     fprintf(stderr, "redir nao implementado\n");
     /* MARK END task3 */
     runcmd(rcmd->cmd);
