@@ -78,13 +78,28 @@ runcmd(struct cmd *cmd)
      * comandos simples. */
     //fprintf(stderr, "exec nao implementado\n");
     if(execvp(ecmd->argv[0], ecmd->argv) == -1)
-      fprintf(stderr, "NAO SABE DIGITAR, NAO DIGITA");
+      fprintf(stderr, "Comando nao executado corretamente");
    // fprintf(stderr, "\n");
     /* MARK END task2 */
     break;
 
   case '>':
-
+    rcmd = (struct redircmd*)cmd;
+    /* MARK START task3
+     * TAREFA3: Implemente codigo abaixo para executar
+     * comando com redirecionamento. */
+    fprintf(stderr, "%d era o fd\n", rcmd->fd);
+    if((rcmd->fd = open(rcmd->file, O_WRONLY|O_CREAT|O_TRUNC)) == -1) {
+      fprintf(stderr, "Nao foi possivel acessar o arquivo %s para escrita\n", rcmd->file);
+      exit(1);
+    }
+    if(dup2(rcmd->fd, STDOUT_FILENO) == -1) {
+      fprintf(stderr, "Erro no dup2\n");
+    }
+    close(rcmd->fd);
+    /* MARK END task3 */
+    runcmd(rcmd->cmd);
+    break;
   case '<':
     rcmd = (struct redircmd*)cmd;
     /* MARK START task3
@@ -130,11 +145,16 @@ main(void)
     /* MARK START task1 */
     /* TAREFA1: O que faz o if abaixo e por que ele é necessário?
      * Insira sua resposta no código e modifique o fprintf abaixo
-     * para reportar o erro corretamente. */
+     * para reportar o erro corretamente. 
+       Resposta: o comando cd não pode ser executado como os outros, pois ele modifica o diretorio atual.
+       Assim, ele não pode ser executado como os outros processos. No if abaixo, caso seja identificado um comando cd,
+       confere-se se o restante da linha é um diretorio valido. Caso seja, o cd é executado.
+     */
+
     if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
       buf[strlen(buf)-1] = 0;
       if(chdir(buf+3) < 0)
-        fprintf(stderr, "Se n sabe digitar, vai pra Disney FDP!\n");
+        fprintf(stderr, "cd: %s: Arquivo ou diretorio nao encontrado\n", buf + 3);
       continue;
     }
     /* MARK END task1 */
