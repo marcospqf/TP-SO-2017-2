@@ -78,7 +78,7 @@ runcmd(struct cmd *cmd)
      * comandos simples. */
     //fprintf(stderr, "exec nao implementado\n");
     if(execvp(ecmd->argv[0], ecmd->argv) == -1)
-      fprintf(stderr, "Comando nao executado corretamente");
+      fprintf(stderr, "Comando %s nao executado corretamente", ecmd->argv[0]);
    // fprintf(stderr, "\n");
     /* MARK END task2 */
     break;
@@ -88,12 +88,13 @@ runcmd(struct cmd *cmd)
     /* MARK START task3
      * TAREFA3: Implemente codigo abaixo para executar
      * comando com redirecionamento. */
-    fprintf(stderr, "%d era o fd\n", rcmd->fd);
-    if((rcmd->fd = open(rcmd->file, O_WRONLY|O_CREAT|O_TRUNC)) == -1) {
+    //fprintf(stderr, "%d era o fd\n", rcmd->fd);
+    if((rcmd->fd = open(rcmd->file, rcmd->mode)) == -1) {
       fprintf(stderr, "Nao foi possivel acessar o arquivo %s para escrita\n", rcmd->file);
       exit(1);
     }
-    if(dup2(rcmd->fd, STDOUT_FILENO) == -1) {
+    chmod(rcmd->file, 0700);
+		if(dup2(rcmd->fd, STDOUT_FILENO) == -1) {
       fprintf(stderr, "Erro no dup2\n");
     }
     close(rcmd->fd);
@@ -105,8 +106,8 @@ runcmd(struct cmd *cmd)
     /* MARK START task3
      * TAREFA3: Implemente codigo abaixo para executar
      * comando com redirecionamento. */
-    fprintf(stderr, "%d era o fd\n", rcmd->fd);
-    if((rcmd->fd = open(rcmd->file, O_RDONLY, 0)) == -1) {
+    //fprintf(stderr, "%d era o fd\n", rcmd->fd);
+    if((rcmd->fd = open(rcmd->file,rcmd->mode)) == -1) {
       fprintf(stderr, "Nao foi possivel acessar o arquivo %s para leitura\n", rcmd->file);
       exit(1);
     }
@@ -117,18 +118,10 @@ runcmd(struct cmd *cmd)
     /* MARK END task3 */
     runcmd(rcmd->cmd);
     break;
-    rcmd = (struct redircmd*)cmd;
-    /* MARK START task3
-     * TAREFA3: Implemente codigo abaixo para executar
-     * comando com redirecionamento. */
-    fprintf(stderr, "redir nao implementado\n");
-    /* MARK END task3 */
-    runcmd(rcmd->cmd);
-    break;
-
   case '|':
     pcmd = (struct pipecmd*)cmd;
-    /* MARK START task4
+    
+		/* MARK START task4
      * TAREFA4: Implemente codigo abaixo para executar
      * comando com pipes. */
     fprintf(stderr, "pipe nao implementado\n");
