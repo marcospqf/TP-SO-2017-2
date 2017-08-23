@@ -142,11 +142,11 @@ runcmd(struct cmd *cmd)
       }
       runcmd(pcmd->left);
       close(p[1]);
+      wait(NULL);
     }
 		/* MARK START task4
      * TAREFA4: Implemente codigo abaixo para executar
      * comando com pipes. */
-    fprintf(stderr, "pipezera\n");
     /* MARK END task4 */
     break;
   }    
