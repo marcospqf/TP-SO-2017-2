@@ -10,7 +10,6 @@
 
 /* MARK NAME Marcos Paulo Quintao Fernandes */
 /* MARK NAME Lucas Renan Vieira de Freitas Pereira */
-/* MARK NAME E Etc */
 
 /****************************************************************
  * Shell xv6 simplificado
@@ -76,10 +75,8 @@ runcmd(struct cmd *cmd)
     /* MARK START task2
      * TAREFA2: Implemente codigo abaixo para executar
      * comandos simples. */
-    //fprintf(stderr, "exec nao implementado\n");
     if(execvp(ecmd->argv[0], ecmd->argv) == -1)
       fprintf(stderr, "Comando %s nao executado corretamente", ecmd->argv[0]);
-   // fprintf(stderr, "\n");
     /* MARK END task2 */
     break;
 
@@ -88,7 +85,6 @@ runcmd(struct cmd *cmd)
     /* MARK START task3
      * TAREFA3: Implemente codigo abaixo para executar
      * comando com redirecionamento. */
-    //fprintf(stderr, "%d era o fd\n", rcmd->fd);
     if((rcmd->fd = open(rcmd->file, rcmd->mode)) == -1) {
       fprintf(stderr, "Nao foi possivel acessar o arquivo %s para escrita\n", rcmd->file);
       exit(1);
@@ -96,6 +92,7 @@ runcmd(struct cmd *cmd)
     chmod(rcmd->file, 0700);
 		if(dup2(rcmd->fd, STDOUT_FILENO) == -1) {
       fprintf(stderr, "Erro no dup2\n");
+      exit(1);
     }
     close(rcmd->fd);
     /* MARK END task3 */
@@ -106,13 +103,13 @@ runcmd(struct cmd *cmd)
     /* MARK START task3
      * TAREFA3: Implemente codigo abaixo para executar
      * comando com redirecionamento. */
-    //fprintf(stderr, "%d era o fd\n", rcmd->fd);
     if((rcmd->fd = open(rcmd->file,rcmd->mode)) == -1) {
       fprintf(stderr, "Nao foi possivel acessar o arquivo %s para leitura\n", rcmd->file);
       exit(1);
     }
     if(dup2(rcmd->fd, STDIN_FILENO) == -1) {
       fprintf(stderr, "Erro no dup2\n");
+      exit(1);
     }
     close(rcmd->fd);
     /* MARK END task3 */
@@ -120,11 +117,36 @@ runcmd(struct cmd *cmd)
     break;
   case '|':
     pcmd = (struct pipecmd*)cmd;
-    
+    if(pipe(p) == -1) {
+      fprintf(stderr, "Erro no pipe\n");
+      exit(1);
+    }
+    r = fork1();
+    if(r == -1) {
+      exit(1);
+    }
+    if(r == 0) {
+      close(p[1]);
+      if(dup2(p[0], STDIN_FILENO) == -1) {
+        fprintf(stderr, "Erro no dup2\n");
+        exit(1);
+      }
+      runcmd(pcmd->right);
+      close(p[0]);
+    }
+    else {
+      close(p[0]);
+      if(dup2(p[1], STDOUT_FILENO) == -1) {
+        fprintf(stderr, "Erro no dup2\n");
+        exit(1);
+      }
+      runcmd(pcmd->left);
+      close(p[1]);
+    }
 		/* MARK START task4
      * TAREFA4: Implemente codigo abaixo para executar
      * comando com pipes. */
-    fprintf(stderr, "pipe nao implementado\n");
+    fprintf(stderr, "pipezera\n");
     /* MARK END task4 */
     break;
   }    
@@ -178,10 +200,9 @@ int
 fork1(void)
 {
   int pid;
-  
   pid = fork();
   if(pid == -1)
-    perror("fork");
+    perror("fork error");
   return pid;
 }
 
