@@ -10,7 +10,7 @@
 char pref[10];
 char suf[10];
 
-char *get_number(int num) {
+char *get_number(int num) {//transforma um numero numa cadeia de caracteres
   char *ret = malloc(11);
   int sz = 0;
   int aux = num;
@@ -29,7 +29,7 @@ char *get_number(int num) {
   return ret;
 }
 
-char *get_file_name(int pid) {
+char *get_file_name(int pid) {//retorna o endereco absoluto do stat do processo de id = pid
   char *number = get_number(pid);
   char *ret = malloc((strlen(number) + 14) * sizeof(char));
   strcpy(ret, pref);
@@ -38,12 +38,12 @@ char *get_file_name(int pid) {
   return ret;
 }
 
-void print_spaces(int qt) {
+void print_spaces(int qt) {//imprime qt espacos para formatar
   int i;
   for(i = 0; i < qt; i++) printf(" ");
 }
 
-char *get_proc_name(FILE *file) {
+char *get_proc_name(FILE *file) {//retorna cadeia de caracteres correspondente ao nome do processo a ser tratado
   char *ret = malloc(100 * sizeof(char));
   char c;
   do {
@@ -58,17 +58,17 @@ char *get_proc_name(FILE *file) {
   return ret;
 }
 
-void to_print(FILE *file, char *usr) {
+void to_print(FILE *file, char *usr) {//imprime um processo no top
   int pid, i;
   fscanf(file, "%d", &pid);
   char *num = get_number(pid);
   int sz = strlen(num);
   printf("%s", num);
-  print_spaces(15 - sz);
+  print_spaces(15 - sz);//Imprime o id do processo devidamente formatado
   printf("|");
 
 
-  printf("%s", usr);
+  printf("%s", usr);//Imprime o owner do processo
   sz = strlen(usr);
   print_spaces(15 - sz);
   printf("|");
@@ -78,23 +78,23 @@ void to_print(FILE *file, char *usr) {
   sz = strlen(proc_name);
   char treated_proc[40];
   for(i = 1; i < sz - 1; i++) {
-    treated_proc[i - 1] = proc_name[i];
+    treated_proc[i - 1] = proc_name[i];//Remove os '(' e ')' do nome do processo 
   }
   treated_proc[sz - 2] = '\0';
-  printf("%s", treated_proc);
+  printf("%s", treated_proc);//Imprime o nome do processo
   print_spaces(32 - sz);
   printf("|");
 
 
   char status[15];
   fscanf(file, "%s", status);
-  printf("%s", status);
+  printf("%s", status);//Imprime o status do processo
   sz = strlen(status);
   print_spaces(15 - sz);
   printf("|\n");
 }
 
-char *get_usr(char *file_name) {
+char *get_usr(char *file_name) {//retorna o owner do processo
   struct stat sb;
   stat(file_name, &sb);
   struct passwd *pw = getpwuid(sb.st_uid);
@@ -105,7 +105,7 @@ char *get_usr(char *file_name) {
 int get_file(int pid) {
   char *file_name = get_file_name(pid);
   FILE *file = fopen(file_name, "r");
-  if(!file) {
+  if(!file) {//se nao existe o arquivo, o processo com esse id nao existe
     return 0;
   }
   char *usr = get_usr(file_name);
@@ -114,13 +114,13 @@ int get_file(int pid) {
   return 1;
 }
 
-void initialize() {
+void initialize() {//Imprime o cabecalho do top
   printf("PID            |User           |PROCNAME                      |Estado         |\n\n");
   printf("\n");
   printf("---------------|---------------|------------------------------|---------------|\n\n");
 }
 
-void run() {
+void run() {//Responsavel por imprimir 20 processos a cada segundo
   initialize();
   int n_process = 0;
   int process_id = rand() % 2500 + 1;
@@ -135,16 +135,15 @@ void *thread_func_1(void *unused) {
   while(1) {
     printf("[3;J[H[2J");
     run();
-    sleep(5);
+    sleep(1);//tempo de espera para renovar o top
     printf("[3;J[H[2J");
   }
 }
 
-void *thread_func_2(void *unused) {
+void *thread_func_2(void *unused) {//Responsavel por enviar um sinal a um processo
   int pid, sig;
   while(1) {
     scanf("%d %d", &pid, &sig);
-    printf("LI %d %d %d\n", pid, sig, SIGKILL);
     kill(pid, sig);
   }
 }
@@ -156,11 +155,11 @@ int main() {
   strcpy(suf, "/stat");
   pthread_t thread1;
   pthread_t thread2;
-  if(pthread_create(&thread1, NULL, thread_func_1, NULL)) {
+  if(pthread_create(&thread1, NULL, thread_func_1, NULL)) {//Uma thread fica responsavel por imprimir o top
     fprintf(stderr, "Erro ao criar thread\n");
     return 1;
   }
-  if(pthread_create(&thread2, NULL, thread_func_2, NULL)) {
+  if(pthread_create(&thread2, NULL, thread_func_2, NULL)) {//Uma responsavel por tratar o envio de sinais
     fprintf(stderr, "Erro ao criar thread\n");
     return 1;
   }
