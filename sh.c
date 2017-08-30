@@ -75,7 +75,7 @@ runcmd(struct cmd *cmd)
     /* MARK START task2
      * TAREFA2: Implemente codigo abaixo para executar
      * comandos simples. */
-    if(execvp(ecmd->argv[0], ecmd->argv) == -1)
+    if(execvp(ecmd->argv[0], ecmd->argv) == -1)//Executa o comando recebido, caso ocorra erro, este é devidamente reportado
       fprintf(stderr, "Comando %s nao executado corretamente", ecmd->argv[0]);
     /* MARK END task2 */
     break;
@@ -85,12 +85,12 @@ runcmd(struct cmd *cmd)
     /* MARK START task3
      * TAREFA3: Implemente codigo abaixo para executar
      * comando com redirecionamento. */
-    if((rcmd->fd = open(rcmd->file, rcmd->mode)) == -1) {
+    if((rcmd->fd = open(rcmd->file, rcmd->mode)) == -1) { 
       fprintf(stderr, "Nao foi possivel acessar o arquivo %s para escrita\n", rcmd->file);
       exit(1);
     }
     chmod(rcmd->file, 0700);
-		if(dup2(rcmd->fd, STDOUT_FILENO) == -1) {
+		if(dup2(rcmd->fd, STDOUT_FILENO) == -1) {//redireciona o STDOUT para o arquivo contido em fd
       fprintf(stderr, "Erro no dup2\n");
       exit(1);
     }
@@ -107,7 +107,7 @@ runcmd(struct cmd *cmd)
       fprintf(stderr, "Nao foi possivel acessar o arquivo %s para leitura\n", rcmd->file);
       exit(1);
     }
-    if(dup2(rcmd->fd, STDIN_FILENO) == -1) {
+    if(dup2(rcmd->fd, STDIN_FILENO) == -1) {//redireciona o STDIN para o arquivo contido em fd
       fprintf(stderr, "Erro no dup2\n");
       exit(1);
     }
@@ -127,7 +127,7 @@ runcmd(struct cmd *cmd)
     }
     if(r == 0) {
       close(p[1]);
-      if(dup2(p[0], STDIN_FILENO) == -1) {
+      if(dup2(p[0], STDIN_FILENO) == -1) {//Redireciona STDIN para a saida do pipe
         fprintf(stderr, "Erro no dup2\n");
         exit(1);
       }
@@ -136,7 +136,7 @@ runcmd(struct cmd *cmd)
     }
     else {
       close(p[0]);
-      if(dup2(p[1], STDOUT_FILENO) == -1) {
+      if(dup2(p[1], STDOUT_FILENO) == -1) {//Redireciona o STDOUT para a entrada do pipe
         fprintf(stderr, "Erro no dup2\n");
         exit(1);
       }
